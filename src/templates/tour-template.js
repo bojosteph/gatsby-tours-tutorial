@@ -3,20 +3,54 @@ import { graphql } from "gatsby"
 import Layout from "../components/layout"
 import styles from "../css/template.module.css"
 import Image from "gatsby-image"
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import { FaMoneyBillWave, FaMap } from "react-icons/fa"
 import { Link } from "gatsby"
 
 const TourTemplate = ({ data }) => {
   const {
-    name,
-    price,
-    country,
-    days,
-    description: { description },
+    title,
+    created,
+    body: { json },
     images,
-    start,
-    journey,
   } = data.tour
+  const options = {
+    renderNode: {
+      "embedded-asset-block": node => {
+        return (
+          <div className="rich">
+            <h3>this is awesome image</h3>
+            <img width="400" src={node.data.target.fields.file["en-US"].url} />
+            <p>images provided by john doe</p>
+          </div>
+        )
+      },
+      "embedded-entry-block": node => {
+        const { title, image, body } = node.data.target.fields
+        console.log(body)
+
+        return (
+          <div>
+            <br />
+            <br />
+            <br />
+            <br />
+            <h1>this is other post : {title["en-US"]}</h1>
+            <img
+              width="400"
+              src={image["en-US"].fields.file["en-US"].url}
+              alt=""
+            />
+            {documentToReactComponents(body["en-US"])}
+            <br />
+            <br />
+            <br />
+            <br />
+          </div>
+        )
+      },
+    },
+  }
 
   return (
     <Layout>
@@ -28,32 +62,29 @@ const TourTemplate = ({ data }) => {
                 <Image
                   key={index}
                   fluid={item.fluid}
-                  alt={name}
+                  alt={title}
                   className={styles.image}
                 />
               )
             })}
           </div>
-          <h2>{name}</h2>
+          <h2>{title}</h2>
           <div className={styles.info}>
             <p>
               <FaMoneyBillWave className={styles.icon}></FaMoneyBillWave>
-              starting from ${price}
+              starting from
             </p>
             <p>
               <FaMap className={styles.icon} />
-              {country}
             </p>
           </div>
-          <h4>start on: {start}</h4>
-          <h4>duration : {days} days</h4>
-          <p className={styles.desc}>{description}</p>
+          <h4>start on: {created}</h4>
+
+          <p className={styles.desc}>
+            {documentToReactComponents(json, options)}
+          </p>
           <h2>daily schedule</h2>
-          <ul className={styles.journey}>
-            {journey.map((item, index) => {
-              return <li key={index}>{item.day}</li>
-            })}
-          </ul>
+
           <Link to="/tours">back to tours</Link>
         </div>
       </section>
@@ -63,23 +94,17 @@ const TourTemplate = ({ data }) => {
 
 export const query = graphql`
   query($slug: String!) {
-    tour: contentfulTour(slug: { eq: $slug }) {
-      name
-      price
-      country
-      days
-      start(formatString: "dddd MMMM Do, YYYY")
-      journey {
-        day
-        info
-      }
-      description {
-        description
-      }
+    tour: contentfulBlog(slug: { eq: $slug }) {
+      title
+      created(formatString: "dddd MMMM do, YYYY")
+      featured
       images {
         fluid {
           ...GatsbyContentfulFluid_withWebp
         }
+      }
+      body {
+        json
       }
     }
   }

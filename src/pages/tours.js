@@ -4,6 +4,7 @@ import Tours from "../components/Tours/Tours"
 import { graphql } from "gatsby"
 
 const tours = ({ data }) => {
+  // console.log(data)
   return (
     <Layout>
       <Tours tours={data.tours.edges} />
@@ -13,15 +14,17 @@ const tours = ({ data }) => {
 
 export const getTours = graphql`
   query {
-    tours: allContentfulTour {
+    tours: allContentfulBlog {
       edges {
         node {
-          name
-          price
+          title
+          created
           slug
-          country
-          id: contentful_id
-          days
+          featured
+          contentful_id
+          body {
+            body
+          }
           images {
             fluid {
               ...GatsbyContentfulFluid_withWebp

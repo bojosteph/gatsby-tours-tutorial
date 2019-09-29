@@ -47,5 +47,6 @@ module.exports = {
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
     `gatsby-plugin-playground`,
+    `@contentful/gatsby-transformer-contentful-richtext`,
   ],
 }
